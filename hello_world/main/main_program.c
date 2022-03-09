@@ -19,6 +19,7 @@
 #include "lwip/sys.h"
 
 #include "modules/wifi_station.h"
+#include "modules/button_input_driver.h"
 
 void app_main(void)
 {
@@ -36,9 +37,14 @@ void app_main(void)
 
   // Create C objects
   WiFi_station *wifi_station = WiFi_sta_create(ssid, password);
+  Button_driver *button_driver = button_driver_create(GPIO_NUM_18);
+
+  // Init simple tasks
+  button_driver_init(button_driver);
 
   // Create Task handles
   TaskHandle_t wifi_task_handle;
+  TaskHandle_t button_task_handle;
 
   // Start Tasks
   xTaskCreate(WiFi_start_task, "WIFI_TASK", 4096, wifi_station, tskIDLE_PRIORITY, &wifi_task_handle);

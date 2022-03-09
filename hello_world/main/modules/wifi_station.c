@@ -4,7 +4,7 @@
 #define WIFI_FAIL_BIT BIT1
 #define WIFI_CONNECT_MAXIMUM_RETRY 5
 
-const char *TAG = "WiFi Station Test";
+const char *WIFI_TAG = "WiFi_Station";
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -29,19 +29,19 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     else if (event_id == WIFI_EVENT_STA_CONNECTED)
     {
         wifi_event_sta_connected_t *event = (wifi_event_sta_connected_t *)event_data;
-        ESP_LOGI(TAG, "Connected to ssid: %s, password: %s", self->_ssid, self->_password);
+        ESP_LOGI(WIFI_TAG, "Connected to ssid: %s, password: %s", self->_ssid, self->_password);
         self->_connected = true;
     }
     else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
         wifi_event_sta_disconnected_t *event = (wifi_event_sta_disconnected_t *)event_data;
         self->_connected = false;
-        ESP_LOGW(TAG, "Disonnected from ssid: %s", self->_ssid);
+        ESP_LOGW(WIFI_TAG, "Disonnected from ssid: %s", self->_ssid);
         if (s_retry_num < WIFI_CONNECT_MAXIMUM_RETRY)
         {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
+            ESP_LOGI(WIFI_TAG, "retry to connect to the AP");
         }
         else
         {
@@ -51,7 +51,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(WIFI_TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -80,7 +80,7 @@ void WiFi_sta_delete(WiFi_station *self)
 
 bool WiFi_connected_status(WiFi_station *self)
 {
-    ESP_LOGW(TAG, "WiFi connection status: %s", self->_connected ? "connected" : "disconnected");
+    ESP_LOGW(WIFI_TAG, "WiFi connection status: %s", self->_connected ? "connected" : "disconnected");
     return self->_connected;
 }
 
@@ -125,7 +125,7 @@ void WiFi_sta_init(WiFi_station *self)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "wifi_init_sta finished. Sta ssid: %s, Sta password: %s", wifi_config.sta.ssid, wifi_config.sta.password);
+    ESP_LOGI(WIFI_TAG, "wifi_init_sta finished. Sta ssid: %s, Sta password: %s", wifi_config.sta.ssid, wifi_config.sta.password);
 
     /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
      * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
@@ -139,17 +139,17 @@ void WiFi_sta_init(WiFi_station *self)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT)
     {
-        ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
+        ESP_LOGI(WIFI_TAG, "connected to ap SSID:%s password:%s",
                  self->_ssid, self->_password);
     }
     else if (bits & WIFI_FAIL_BIT)
     {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
+        ESP_LOGI(WIFI_TAG, "Failed to connect to SSID:%s, password:%s",
                  self->_ssid, self->_password);
     }
     else
     {
-        ESP_LOGE(TAG, "UNEXPECTED EVENT");
+        ESP_LOGE(WIFI_TAG, "UNEXPECTED EVENT");
     }
 
     /* The event will not be processed after unregister */

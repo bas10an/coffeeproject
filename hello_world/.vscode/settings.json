@@ -63,6 +63,11 @@
         "typeinfo": "cpp",
         "*.inc": "c",
         "wifi_station.h": "c",
-        "event_groups.h": "c"
+        "event_groups.h": "c",
+        "esp_rom_gpio.h": "c",
+        "gpio.h": "c",
+        "esp_intr.h": "c",
+        "esp_intr_alloc.h": "c",
+        "button_input_driver.h": "c"
     }
 }

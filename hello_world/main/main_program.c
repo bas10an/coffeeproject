@@ -20,6 +20,7 @@
 
 #include "modules/wifi_station.h"
 #include "modules/button_input_driver.h"
+#include "modules/led_output_driver.h"
 
 void app_main(void)
 {
@@ -37,14 +38,15 @@ void app_main(void)
 
   // Create C objects
   WiFi_station *wifi_station = WiFi_sta_create(ssid, password);
-  Button_driver *button_driver = button_driver_create(GPIO_NUM_18);
+  LED_driver *led_driver = led_driver_create(GPIO_NUM_19);
+  Button_driver *button_driver = button_driver_create(GPIO_NUM_18, led_driver);
 
   // Init simple tasks
+  led_driver_init(led_driver);
   button_driver_init(button_driver);
 
   // Create Task handles
   TaskHandle_t wifi_task_handle;
-  TaskHandle_t button_task_handle;
 
   // Start Tasks
   xTaskCreate(WiFi_start_task, "WIFI_TASK", 4096, wifi_station, tskIDLE_PRIORITY, &wifi_task_handle);
